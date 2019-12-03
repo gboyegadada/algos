@@ -1,1 +1,1 @@
-### My LeetCode solutions :octocat:
+### Algo prectice :octocat:
