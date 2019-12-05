@@ -10,7 +10,7 @@ with open(f, 'r') as fp:
 
   l, mreset, string = fp.readline(), [], ''
   while l:
-    string += str(l) #.strip()
+    string += str(l).strip()
     
     l = fp.readline()
 
@@ -42,7 +42,7 @@ def run(m, id: int):
       break
 
     # 1: sum
-    elif op == 1: # or op == 0:
+    elif op == 1:
       r = v1 + v2
       if m3 == 0: m[p3] = r 
       else: m[p+3] = r
@@ -101,10 +101,6 @@ def run(m, id: int):
       break
 
   return m
-
-# noun, verb = 12, 2
-# data[1] = noun
-# data[2] = verb
 
 print(' ----------- RUN -------- ')
 print('Provide Sytem ID:')
