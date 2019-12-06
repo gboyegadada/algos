@@ -8,26 +8,33 @@ else: f = sys.argv[1]
 
 with open(f, 'r') as fp:
 
-  l, r = fp.readline(), []
+  l, pl, pr = fp.readline(), [], []
   while l:
-    r += [str(l).strip()]
+    x = str(l).strip().split(')')
+    pl += [x[0]]
+    pr += [x[1]]
     
     l = fp.readline()
 
-  
-pl, pr = [s[:s.index(')')] for s in r], [s[s.index(')')+1:] for s in r]
+def mem(f):
+  m = {}
 
-def orbits(p, return_array = True):
+  def helper(x):
+    k = pl[x]
+    if k not in m: m[k] = f(x)
+    return m[k]
 
-  r = [pl[p]] if return_array else 1
+  return helper
 
+def fn_orbits(p):
   if pl[p] in pr:
     po = pr.index(pl[p])
 
-    return r + orbits(po, return_array)
+    return [pl[p]] + orbits(po)
   else:
-    return r
+    return [pl[p]]
 
+orbits = mem(fn_orbits)
 
 '''
 Part 1
@@ -36,7 +43,7 @@ Part 1
 def total():
   t = 0
   for i in range(len(pl)):
-    t += orbits(i, False)
+    t += len(orbits(i))
 
   print('TOTAL', t)
 
@@ -51,10 +58,14 @@ def dist(a, b = 'COM'):
   if b not in {'COM', None}:
     bo = orbits(pr.index(b))
 
-    for i in ao[:]:
-      if i in bo:
-        ao.remove(i)
-        bo.remove(i)
+    i, al, bl = 1, len(ao), len(bo)
+    while i < al :
+      if ao[-i] != bo[-i]:
+        ao = ao[:-i+1]
+        bo = bo[:-i+1]
+        break
+
+      i += 1
   else: 
     bo = []
 
