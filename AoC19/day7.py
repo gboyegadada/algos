@@ -2,12 +2,12 @@
 import sys
 import itertools
 
-if len(sys.argv) == 1 or len(sys.argv) == 2 and sys.argv[1] == '-v': 
+if len(sys.argv) == 1 or sys.argv[1] == '-v': 
   print('Input filename:')
   f=str(sys.stdin.readline()).strip()
 else: f = sys.argv[1]
 
-verbose = True if sys.argv[-1] == '-v' else False
+verbose = sys.argv[-1] == '-v'
 
 for l in open(f):
   mreset = [int(x) for x in l.strip().split(',')]
@@ -40,16 +40,13 @@ class Machine:
         self.__initialized = True
 
     while self.pointer < self.len:
-      if self.len - self.pointer < 5: instr = self.memory + ([0] * 5) 
-      else: instr = self.memory[:self.pointer+5]
-
       n = self.memory[self.pointer]
       op = n % 100
       m1 = n // 100 % 10
       m2 = n // 1000 % 10
       m3 = n // 10000 % 10
 
-      p1, p2, p3 = instr[self.pointer+1], instr[self.pointer+2], instr[self.pointer+3]
+      p1, p2, p3, *_ = (self.memory + [0]*5)[self.pointer+1:]
 
       v1 = self.memory[p1] if m1 == 0 and op != 99 else p1
       v2 = self.memory[p2] if m2 == 0 and op not in {99,3,4} else p2
@@ -138,7 +135,7 @@ def run(data, settings):
     _prev, _current = 4, 0
 
     while not m[_current].halted():
-
+      
         if not m[_current].initialized(): m[_current].run(p[_current])
         else: m[_current].run(m[_prev].output())
 
