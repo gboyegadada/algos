@@ -2,10 +2,12 @@
 import sys
 import itertools
 
-if len(sys.argv) == 1: 
+if len(sys.argv) == 1 or len(sys.argv) == 2 and sys.argv[1] == '-v': 
   print('Input filename:')
   f=str(sys.stdin.readline()).strip()
 else: f = sys.argv[1]
+
+verbose = True if sys.argv[-1] == '-v' else False
 
 for l in open(f):
   mreset = [int(x) for x in l.strip().split(',')]
@@ -56,7 +58,7 @@ class Machine:
       # 99: end
       if op == 99:
         self.__halt = True
-        print('END')
+        if verbose: print('END')
         break
 
       # 1: sum
@@ -78,18 +80,18 @@ class Machine:
       # 3: save to address
       elif op == 3: 
         if input == None:
-          print('Waiting for input...')
+          if verbose: print('Waiting for input...')
           break # Wait for input...
 
         self.memory[p1] = input
         input = None
         
-        print('READ:', self.memory[p1])
+        if verbose: print('READ:', self.memory[p1])
         self.pointer += 2
 
       # 4: output
       elif op == 4:
-        print('OUTPUT: ', v1)
+        if verbose: print('OUTPUT: ', v1)
         self.out = v1
 
         self.pointer += 2
@@ -126,80 +128,58 @@ class Machine:
         print('ERRRRR.....', self.pointer, op, self.memory[self.pointer:self.pointer+4])
         break
 
+
+def run(data, settings):
+  result, perms = 0, list(itertools.permutations(settings, 5))
+
+  for p in perms:
+    m = [ 
+      Machine(data[:]),
+      Machine(data[:]),
+      Machine(data[:]),
+      Machine(data[:]),
+      Machine(data[:])
+    ]
+
+    _prev, _current = 4, 0
+
+    while True:
+        if m[_current].halted(): break
+
+        if not m[_current].initialized(): m[_current].run(p[_current])
+        else: m[_current].run(m[_prev].output())
+
+        if _current == 4: 
+          _prev = 4     
+          _current = 0
+        else:
+          _prev = _current
+          _current += 1
+
+    if verbose: print('SEQUENCE:', p, m[4].output())
+    result = m[4].output() if m[4].output() > result else result
+
+  return result
+
 '''
 PART 1
 
 '''
-
-result1, perms = 0, list(itertools.permutations(list(range(5)), 5))
-
-for p in perms:
-  m = [ 
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-  ]
-
-  _prev, _current = 4, 0
-
-  while True:
-      if m[_current].halted(): break
-
-      if not m[_current].initialized(): m[_current].run(p[_current])
-      else: m[_current].run(m[_prev].output())
-
-      if _current == 4: 
-         _prev = 4     
-         _current = 0
-      else:
-        _prev = _current
-        _current += 1
-
-  print('SEQUENCE:', p, m[4].output())
-  result1 = m[4].output() if m[4].output() > result1 else result1
-
+settings_1 = list(range(5))
+result_1 = run(mreset, settings_1)
 
 
 '''
 PART 2
 
 '''
-
-result2, perms = 0, list(itertools.permutations(list(range(5,10)), 5))
-
-for p in perms:
-  m = [ 
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-    Machine(mreset[:]),
-  ]
-
-  _prev, _current = 4, 0
-
-  while True:
-      if m[_current].halted(): break
-
-      if not m[_current].initialized(): m[_current].run(p[_current])
-      else: m[_current].run(m[_prev].output())
-
-      if _current == 4: 
-         _prev = 4     
-         _current = 0
-      else:
-        _prev = _current
-        _current += 1
-
-  print('SEQUENCE:', p, m[4].output())
-  result2 = m[4].output() if m[4].output() > result2 else result2
+settings_2 = list(range(5,10))
+result_2 = run(mreset, settings_2)
 
 
 print('------ Part One ------')
-print('MAX THRUST:', result1)
+print('MAX THRUST:', result_1)
 
 
 print('------ Part Two ------')
-print('MAX THRUST:', result2)
+print('MAX THRUST:', result_2)
