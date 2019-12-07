@@ -1,1 +1,1 @@
-### Algo prectice :octocat:
+### Algo practice :octocat:
