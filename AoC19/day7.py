@@ -133,18 +133,11 @@ def run(data, settings):
   result, perms = 0, list(itertools.permutations(settings, 5))
 
   for p in perms:
-    m = [ 
-      Machine(data[:]),
-      Machine(data[:]),
-      Machine(data[:]),
-      Machine(data[:]),
-      Machine(data[:])
-    ]
+    m = [ Machine(data[:]) for _ in range(5) ]
 
     _prev, _current = 4, 0
 
-    while True:
-        if m[_current].halted(): break
+    while not m[_current].halted():
 
         if not m[_current].initialized(): m[_current].run(p[_current])
         else: m[_current].run(m[_prev].output())
