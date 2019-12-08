@@ -6,15 +6,11 @@ if len(sys.argv) == 1:
   f=str(sys.stdin.readline()).strip()
 else: f = sys.argv[1]
 
-with open(f, 'r') as fp:
-
-  l, pl, pr = fp.readline(), [], []
-  while l:
-    x = str(l).strip().split(')')
-    pl += [x[0]]
-    pr += [x[1]]
-    
-    l = fp.readline()
+pl, pr, la, lb = [], [], 0, 0
+for l in open(f):
+  if la == 0: la, lb = l.index(')'), len(l)-1
+  pl.append(l[:la])
+  pr.append(l[la+1:lb])
 
 def mem(f):
   m = {}

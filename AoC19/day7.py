@@ -135,7 +135,7 @@ def run(data, settings):
     _prev, _current = 4, 0
 
     while not m[_current].halted():
-      
+
         if not m[_current].initialized(): m[_current].run(p[_current])
         else: m[_current].run(m[_prev].output())
 
@@ -147,7 +147,7 @@ def run(data, settings):
           _current += 1
 
     if verbose: print('SEQUENCE:', p, m[4].output())
-    result = m[4].output() if m[4].output() > result else result
+    result = max(m[4].output(), result)
 
   return result
 
