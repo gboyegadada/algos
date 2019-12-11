@@ -22,7 +22,8 @@ def mem(f):
 
   return helper
 
-def fn_orbits(p):
+@mem
+def orbits(p):
   if pl[p] in pr:
     po = pr.index(pl[p])
 
@@ -30,7 +31,6 @@ def fn_orbits(p):
   else:
     return [pl[p]]
 
-orbits = mem(fn_orbits)
 
 '''
 Part 1
