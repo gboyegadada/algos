@@ -19,24 +19,6 @@ for l in open(f):
 
 coords =  [(i%nx, i//nx) for i, p in enumerate(m) if p == '#']
 
-def mem(f):
-  m = {}
-
-  def helper(a, b):
-    k = '{0}.{1}.{2}.{3}'.format(a[0], a[1], b[0], b[1])
-    if k not in m: m[k] = f(a, b)
-    return m[k]
-
-  return helper
-
-'''
-+ Euclidean distance between two points -> sqrt((x2-x1)^2+(y2-y1)^2))
-'''
-@mem
-def dist(a, b, scale = 1):
-  x1, y1, x2, y2 = a[0]*scale, a[1]*scale, b[0]*scale, b[1]*scale
-  return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-
 '''
 Returns radian for (x, y) as sort key
 '''
