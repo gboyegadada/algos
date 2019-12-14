@@ -8,6 +8,7 @@ class Machine:
     self.len = len(m)
     self.__output_queue = []
     self.__halt = False
+    self.__waiting = False
     self.__initialized = False
     self.__verbose = False
 
@@ -28,6 +29,12 @@ class Machine:
 
   def halted(self):
     return self.__halt
+
+  def waiting(self):
+    return self.__waiting
+
+  def has_output(self):
+    return len(self.__output_queue) > 0
 
   def initialized(self):
     return self.__initialized
@@ -86,7 +93,10 @@ class Machine:
       elif op == 3: 
         if input == None:
           if self.__verbose: print('op 3: Waiting for input...')
+          self.__waiting = True
           break # Wait for input...
+        else:
+          self.__waiting = False
 
         self.memory[p1] = input 
         if self.__verbose: print('READ:', self.memory[p1], 'Saved in', p1)
