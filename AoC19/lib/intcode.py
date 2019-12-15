@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 
 class Machine:
   def __init__(self, m):
@@ -6,7 +6,7 @@ class Machine:
     self.pointer = 0
     self.relative_base = 0
     self.len = len(m)
-    self.__output_queue = []
+    self.__output_queue = deque()
     self.__halt = False
     self.__waiting = False
     self.__initialized = False
@@ -16,10 +16,10 @@ class Machine:
     self.run(v)
 
   def output(self):
-    return self.__output_queue.pop() if len(self.__output_queue) > 0 else None
+    return self.__output_queue.popleft() if len(self.__output_queue) > 0 else None
 
   def dump_output(self):
-    return self.__output_queue
+    return list(self.__output_queue)
 
   def toggle_verbose(self):
     self.__verbose = not self.__verbose
@@ -108,7 +108,7 @@ class Machine:
       # 4: output
       elif op == 4:
         if self.__verbose: print('op 4: OUTPUT', v1)
-        self.__output_queue =  [v1] + self.__output_queue
+        self.__output_queue.append(v1)
 
         self.pointer += 2
 

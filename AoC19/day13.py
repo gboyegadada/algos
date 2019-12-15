@@ -77,8 +77,6 @@ class Arcade9000Turbo:
         print('_|_ >')
         self.input()
 
-
-
   def input(self):
       try:
         self.__cpu.run(int(sys.stdin.readline()))
@@ -132,8 +130,6 @@ def one(mreset):
   arcade = Arcade9000Turbo(mreset[:])
   arcade.play()
 
-
-
 '''
 Solution 2
 
@@ -144,8 +140,6 @@ def two(mreset):
   jailbreak[0] = 2
   arcade = Arcade9000Turbo(jailbreak)
   arcade.play(False)
-
-
 
 '''
 Selector
