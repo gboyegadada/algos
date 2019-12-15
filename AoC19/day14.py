@@ -1,7 +1,6 @@
 import sys
 from math import ceil
 
-
 if len(sys.argv) == 1 or sys.argv[1] == '-v': 
   print('Input filename:')
   f=str(sys.stdin.readline()).strip()
@@ -9,7 +8,6 @@ else: f = sys.argv[1]
 
 verbose = sys.argv[-1] == '-v'
 
-data = dict()
 dictint = lambda x: (x[1], int(x[0]))
 pairs = lambda s: dict(dictint(x.split(' ')) for x in s.split(', '))
 data = [pairs(x) for l in open(f) for x in l.strip().split(' => ')]
@@ -27,12 +25,11 @@ for i in range(0, len(data), 2):
 
 # for a, b in zip(l, r): print(a, '==>', b)
 
-
-def qty(element: str):
+def qty(element: str = 'ORE', fuel = 1):
   '''
   element: A
   '''
-  if element == 'FUEL': return 1
+  if element == 'FUEL': return fuel
 
   q = 0
   for i, recipe in enumerate(l):
@@ -52,8 +49,30 @@ def qty(element: str):
       Find out how many 'AB's have been used 
       to make something else recusively.
       '''
-      q += ceil(qty(parent) / parent_batch_qty) * recipe[element]
+      q += ceil(qty(parent, fuel) / parent_batch_qty) * recipe[element]
 
   return q
 
-print(qty('ORE'), 'ORE', '==> 1 FUEL')
+'''
+Solution 1
+
+'''
+print(qty('ORE', 1), 'ORE', '==> 1 FUEL')
+
+
+'''
+Solution 2
+
+'''
+ORE_MAX = 1_000_000_000_000
+fuel_min, fuel_max = 1, 100_000_000
+
+while (fuel_max - fuel_min) > 1:
+  m = (fuel_min + fuel_max) // 2
+  if qty(fuel=m) <= ORE_MAX:
+    fuel_min = m
+  else:
+    fuel_max = m
+
+print('1T ORE', '==>', fuel_min, 'FUEL')
+
