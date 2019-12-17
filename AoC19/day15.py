@@ -1,9 +1,7 @@
 import sys
 from collections import OrderedDict
 from lib.intcode import Machine
-from lib.helper import shortest_path
 from time import sleep
-from random import randint
 import subprocess
 
 
@@ -20,7 +18,7 @@ for l in open(f):
 class Droid:
   WALL_HIT = 0
   OK = 1
-  OXYGEN_TANK_FOUND = 2
+  OXYGEN = 2
   UNEXPLORED = 3
 
   MOV_NORTH = 1
@@ -35,6 +33,8 @@ class Droid:
     
     self.__bounds = (0, 0, 0, 0)
     self.__pos = (0, 0)
+    self.__tank_pos = None
+    self.__move_count = 0
     self.__map = OrderedDict()
     self.__tiles = {
       0: '⬜',
@@ -59,7 +59,9 @@ class Droid:
     while True:
       '''
       here, we will use (D)epth (F)irst (S)earch algo to traverse
-      the entire map. Then use BFS to find shortest path.
+      the entire map. 
+      
+      we will also capture tank's position and steps when it is found.
 
       the goal here is to traverse every single path (even after the tank is found) by 
       going all the way to end of each path and backtracking till we find a new one.
@@ -106,20 +108,26 @@ class Droid:
       cpu.run(move)
       o = cpu.output()
 
-
-      if o in {self.OK, self.OXYGEN_TANK_FOUND}:
+      if o in {self.OK, self.OXYGEN}:
         p = self.xy(move, p)
         self.__pos = p
         self.__bounds = self.update_bounds()
 
-        if display: 
-          self.display()
-
         if not backtrack:
             history.append(move)
             self.__map[p] = o
+
+        if o == self.OXYGEN:
+          '''
+          capture oxygen tank position and steps it takes to get there.
+          '''
+          self.__move_count = len(self.__history)
+          self.__tank_pos = p
+          
+        if display: 
+          self.display()
   
-    return self.__map
+    return self.__tank_pos, self.__move_count, self.__map
       
 
   def reverse(self, direction = None):
@@ -183,7 +191,7 @@ class Droid:
     prev = grid[py+abs(miny)][px+abs(minx)]
 
     rx, ry = px+abs(minx), py+abs(miny)
-    if prev != self.__tiles[self.OXYGEN_TANK_FOUND]:
+    if prev != self.__tiles[self.OXYGEN]:
       grid[ry][rx] = '🛸'
     else:
       grid[ry][rx-1] = '🛸'
@@ -201,6 +209,8 @@ class Droid:
     if not self.__map: return
 
     self.__pos = (0, 0)
+    self.__move_count = 0
+    self.__tank_pos = None
 
     self.__map = OrderedDict()
     self.__cpu = Machine(self.__m[:])
@@ -217,9 +227,34 @@ class Droid:
 Solution 1
 
 '''
-
-print('Solution 1 ----------------------------', '\n')
 r = Droid(mreset[:])
+tank_pos, steps, rmap = r.map(True)
 
-print('BFS', shortest_path(r.map(True), (0, 0), Droid.OXYGEN_TANK_FOUND))
+print('Solution 1:', steps)
 
+
+'''
+Solution 2
+
+'''
+
+def neighbours(m, pos: tuple):
+  '''
+  N (x, y), S (x, y), W (x, y), E (x, y)
+  '''
+  (x, y), dxy = pos, [(0, -1), (0, 1), (-1, 0), (1, 0)]
+
+  n = [(x + dx, y + dy) for dx, dy in dxy]
+
+  return [nn for nn in n if nn in m]
+
+def spread(m, p, t = 0):
+  if m.get(p, Droid.WALL_HIT) == Droid.WALL_HIT:
+      return t - 1
+
+  m[p] = Droid.WALL_HIT
+  n = neighbours(m, p)
+
+  return max([ spread(m, nn, t + 1) for nn in n ])
+
+print('Solution 2:', spread(rmap, tank_pos))
