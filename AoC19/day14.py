@@ -25,7 +25,7 @@ for i in range(0, len(data), 2):
 
 # for a, b in zip(l, r): print(a, '==>', b)
 
-def qty(element: str = 'ORE', fuel = 1):
+def qty(element: str = 'ORE', fuel: int = 1):
   '''
   element: A
   '''
