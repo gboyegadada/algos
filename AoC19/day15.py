@@ -16,7 +16,7 @@ for l in open(f):
   mreset = [int(x) for x in l.strip().split(',')]
 
 class Droid:
-  WALL_HIT = 0
+  WALL = 0
   OK = 1
   OXYGEN = 2
   UNEXPLORED = 3
@@ -35,7 +35,7 @@ class Droid:
     self.__pos = (0, 0)
     self.__tank_pos = None
     self.__move_count = 0
-    self.__map = OrderedDict()
+    self.__map = OrderedDict({(0, 0): Droid.OK})
     self.__tiles = {
       0: '⬜',
       1: '.',
@@ -119,9 +119,11 @@ class Droid:
 
         if o == self.OXYGEN:
           '''
-          capture oxygen tank position and steps it takes to get there.
+          + capture oxygen tank [position: x, y] and [steps] it took to get to it.
+          + there is only 1 path but if there were more than 1, to get the shortest path,
+            we'd simply replace with the lowest count each time we hit the oxygen tank.
           '''
-          self.__move_count = len(self.__history)
+          self.__move_count = len(self.__history) if self.__move_count == 0 else min(self.__move_count, len(self.__history))
           self.__tank_pos = p
           
         if display: 
@@ -238,7 +240,7 @@ Solution 2
 
 '''
 
-def neighbours(m, pos: tuple):
+def neighbours(m: dict, pos: tuple, l: callable = lambda p, v: True):
   '''
   N (x, y), S (x, y), W (x, y), E (x, y)
   '''
@@ -246,13 +248,14 @@ def neighbours(m, pos: tuple):
 
   n = [(x + dx, y + dy) for dx, dy in dxy]
 
-  return [nn for nn in n if nn in m]
+  return [nn for nn in n if nn in m and l(nn, m.get(nn)) ]
+
 
 def spread(m, p, t = 0):
-  if m.get(p, Droid.WALL_HIT) == Droid.WALL_HIT:
+  if m.get(p, Droid.WALL) == Droid.WALL:
       return t - 1
 
-  m[p] = Droid.WALL_HIT
+  m[p] = Droid.WALL
   n = neighbours(m, p)
 
   return max([ spread(m, nn, t + 1) for nn in n ])
