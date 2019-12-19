@@ -17,10 +17,10 @@ for l in open(f):
 def num(l):
   return sum([ x * 10**i for i, x in enumerate(reversed(l))])
 
-def solve_digit(pos: int, digits: list, dl: int):
+def solve_digit(pos: int, digits: list):
   
   base_seq = [0]*(pos+1) + [1]*(pos+1) + [0]*(pos+1) + [-1]*(pos+1)  
-  seq = base_seq[pos+1:] + (base_seq * ceil(dl // len(base_seq)))
+  seq = base_seq[pos+1:] + base_seq * ceil(len(digits) // len(base_seq))
 
 
   # st = []
@@ -38,11 +38,10 @@ Solution 1
 
 '''
 
-N = len(data)
 d = data[:]
 
 for _ in range(100):
-  d = [ solve_digit(i, d, N) for i in range(N) ]
+  d = [ solve_digit(i, d) for i in range(len(d)) ]
 
 print('Solution 1:', num(d[:8]))
 
