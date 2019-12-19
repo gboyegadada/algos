@@ -25,7 +25,8 @@ def solve_digit(pos: int, digits: list):
 
   # st = []
   acc = 0
-  for d, s in zip(digits[pos:], seq[:len(digits)+pos]): 
+
+  for d, s in zip(digits[pos:], seq[:len(digits)-pos]): 
     # st.append('{}*{}'.format(d, s))
     acc += d * s
 
