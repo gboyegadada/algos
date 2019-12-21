@@ -64,7 +64,12 @@ Solution 2
 1. By the time we get to index [5976463] all sums before that point will be ZEROs 
    so we will ignore them.
 
-2. Calculate in reverse and reverse our answer again.
+2. On the other half of our sequence, coeficients are all ones.
+   
+        0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+        <------<-------|------>------->
+
+3. Calculate in reverse and reverse our answer again.
 
 '''
 skip = num(data[:7])
