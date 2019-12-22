@@ -1,6 +1,7 @@
 import sys
 from collections import OrderedDict
 from math import ceil
+from itertools import combinations
 from lib.intcode import Machine
 from time import sleep
 import subprocess
@@ -41,6 +42,7 @@ class Bot:
     self.__bot_pos = (0, 0, ord('^'))
     self.__moves = []
     self.__map = OrderedDict()
+    self.__alignment_parameters = 0
     self.__star_dust = 0
 
     if verbose: self.__cpu.toggle_verbose()
@@ -67,7 +69,7 @@ class Bot:
 
     ''' 2. SUBROUTINES '''
     for i in range(3):
-      key = (65, 66, 67)[i]
+      key = ('A', 'B', 'C')[i]
 
       for instr in map(ord, subs[key]):
         cpu.run(instr)
@@ -92,13 +94,10 @@ class Bot:
   def subroutines(self, moves):
     routines = {}
 
-    A, B, C = 65, 66, 67
-
     '''
-    Not proud of solving manually 
-    but this is DAY THREE 😳
+    Initially solved manually not proud 
+    but this was DAY THREE 😳
 
-    '''
     FUNC_MAIN = 'A,A,B,B,C,B,C,B,C,A'
 
     FUNC_A = 'L,10,L,10,R,6'
@@ -110,6 +109,104 @@ class Bot:
     routines[A] = FUNC_A
     routines[B] = FUNC_B
     routines[C] = FUNC_C
+    
+
+
+    UPDATE: DAY AFTER
+    ------------------------------------------
+    build list of candidate functions (collect repeated sequences)
+
+    1. begin from [i:i+2] 
+    2. count occurences of sub in rest of string
+    3. if zero, increment i
+    4. if repetitions found, store count, increment j and try [i:j] until j >= j + (len(moves) - j) // 2
+    5. increment i and goto step 1
+
+    '''
+    path, n, seen = ','.join(moves), '', set()
+
+    counts, l, i, j = {}, len(moves), 0, 2
+
+    while i < l:
+      n = ','.join(moves[i:j])
+      
+      if n not in seen:
+        seen.add(n)
+        c = ','.join(moves[j:]).count(n)
+
+        if c > 1:
+          counts[n] = c
+      
+      if j >= j + (l-j)//2 or c == 0:
+        i += 1
+        j = i + 2
+      else:
+        j += 1
+
+
+    print('PATH:', path, '\n')
+
+    # for p, c in counts.items():
+    #   print('PATH:', p, '==>', c)
+
+    '''
+    do a little checksum using combinations of candidate functions
+    to narrow down list
+
+    '''
+    h = path.replace(',', '') # for checksum
+    found = set()
+    total_count = 0
+    for _abc in combinations(counts.keys(), 3):
+      total_count += 1
+      a, b, c = map(lambda s: s.replace(',', ''), _abc)
+
+      '''
+      check if total length of the overall path matches 
+      combined steps of candidate functions (minus commas).
+      '''
+      checksum = (h.count(a) * len(a)) + h.count(b) * len(b) + h.count(c) * len(c)
+      if len(h) == checksum:
+        found.add(_abc)
+        
+    print(f'ABC CANDIDATES: {len(found)} found out of {total_count} combinations.')
+
+
+    '''
+    simulate traversal with each set of functions and stop when we
+    find a function trio that takes us all the way to the end of the maze.
+    '''
+    abc, fn_queue, queue = {}, [], ''
+    while found and queue != path:
+      func_set = found.pop()
+      abc, queue, fn_queue = dict(zip('ABC', func_set)), '', []
+
+      while queue != path:
+        match = False
+        for i, fn in enumerate(func_set):
+          new_queque = f'{queue},{fn}' if queue != '' else fn
+          
+          if path.startswith(new_queque):
+            queue = new_queque
+            fn_queue.append('ABC'[i])
+            match = True
+            break
+
+        if not match: 
+          break
+
+    print('ABC DEFS:', abc, fn_queue)
+
+
+    '''
+    DONE !!
+
+    return subroutines
+    '''
+    routines[0] = ','.join(fn_queue)
+    for k, f in abc.items():
+      routines[k] = f
+
 
     return routines
 
@@ -119,9 +216,29 @@ class Bot:
 
     cpu.run()
 
-    return self.video(display)
+    self.video(display)
+    
+    m, acc, inter, corners = self.__map, 0, 0, []
+    for (x, y), v in m.items():
+      if v != Bot.SCAFFOLD: 
+        continue
 
+      n = neighbours(m, (x, y), lambda np, v: v == Bot.SCAFFOLD)
+
+      if len(n) == 4:
+        acc += (x-1) * y
+        m[(x, y)] = 79
+        inter += 1
+
+      elif len(n) == 2 and corner((x,y), n):
+        m[(x, y)] = 64
+        corners.append((x, y))
+
+    self.__alignment_parameters = acc
+
+    return self.__map, self.__bot_pos
   
+
   def get_map(self):
     return self.__map
 
@@ -129,7 +246,6 @@ class Bot:
   def video(self, show = True):
     cpu = self.__cpu
     pos = self.__pos = (0, 0)
-    rpos = None
 
     while cpu.has_output():
       
@@ -154,7 +270,8 @@ class Bot:
       else:
         '''capture robot position and direction'''
         if o in {self.NORTH, self.SOUTH, self.WEST, self.EAST}:
-          rpos = self.__bot_pos = (*pos, o)
+          if self.__bot_pos[0] == 0: 
+            self.__bot_pos = (*pos, o)
           
         x, y = pos
         pos = (x+1, y)
@@ -168,18 +285,19 @@ class Bot:
     if show: 
       display(self.__map, self.get_bounds(), 0, 0)
 
-    return self.__map, rpos
+    return self.__map, self.__bot_pos
 
 
   def traverse(self):
-    m = self.__map
+    m = self.__map.copy()
 
     prev = None
 
-    *pos, facing = self.__bot_pos
+    x, y, facing = self.__bot_pos
 
-    pos = tuple(pos)
+    pos = tuple([x+1, y])
     d, facing = self.turn(facing, pos, None)
+
 
     moves = []
 
@@ -187,22 +305,16 @@ class Bot:
     while True:
 
       s, pos, prev = self.steps(pos, facing)
+      # print('DEBUG', s, pos, chr(m[pos]), prev, chr(d), chr(facing))
 
       if s == 0:
-        print('DEBUG', s, pos, chr(m[pos]), prev, d)
         break
 
-      moves.append(d) 
-      moves.append(s) 
+      moves.append('{},{}'.format(chr(d), s)) 
       
 
-      if pos not in m:
-        # print('DEBUG POS 404', pos, d, chr(facing))
-
-        return moves
-        
-      if m[pos] != self.CORNER:
-        # print('DEBUG HALT NOT A CORNER', pos)
+      if pos not in m or m.get(pos, None) != self.CORNER:
+        print('DEBUG HALT NOT A CORNER', pos, s)
         break
 
       d, facing = self.turn(facing, pos, prev)
@@ -211,20 +323,28 @@ class Bot:
     self.__bot_pos = (*pos, facing)
 
 
+
     return moves
 
 
   def steps(self, pos, facing):
     m, steps, prev = self.__map, 0, None
 
-    steps += 1
-    prev = tuple(pos)
-    pos = self.move(pos, facing)
+    p = tuple(pos)
+    p = self.move(p, facing)
     
-    while pos in m and m[pos] != self.CORNER:
+    while p in m and m.get(p) not in {self.CORNER, self.SPACE}:
       steps += 1
       prev = tuple(pos)
-      pos = self.move(pos, facing)
+      pos = p
+
+      p = self.move(p, facing)
+
+    if m.get(p, None) == self.CORNER:
+      steps += 1
+      prev = tuple(pos)
+      pos = p
+
 
     return steps, pos, prev
 
@@ -239,12 +359,17 @@ class Bot:
     '''
     n = neighbours(self.__map, pos, lambda np, v: v == Bot.SCAFFOLD and np != prev)[0]
 
-    if n[0] != pos[0]: # W < -- > E
 
-      return (ord('L'), ord('<')) if n[0] < pos[0] else (ord('R'), ord('>'))
+    if n[0] != pos[0]: # N < -- > S
+      f = ord('<') if n[0] < pos[0] else ord('>')
 
-    else: # N < -- > S
-      return (ord('L'), ord('^')) if n[1] < pos[1] else (ord('R'), ord('v'))
+    else: # W < -- > E
+      f = ord('^') if n[1] < pos[1] else ord('v')
+
+    if '{} {}'.format(chr(facing), chr(f)) in {'^ <', '< v', 'v >', '> ^'}:
+      return (ord('L'), f)
+    elif '{} {}'.format(chr(facing), chr(f)) in {'^ >', '> v', 'v <', '< ^'}:
+      return (ord('R'), f)
 
 
   def move(self, pos, facing):
@@ -271,6 +396,10 @@ class Bot:
 
   def get_stardust_count(self):
     return self.__star_dust
+
+
+  def get_alignment_parameters(self):
+    return self.__alignment_parameters
 
 
 
@@ -338,30 +467,11 @@ def one(r):
   Solution 1
 
   '''
-  m = r.get_map()
-
-  acc, inter, corners = 0, 0, []
-  for (x, y), v in m.items():
-    if v != Bot.SCAFFOLD: 
-      continue
-
-    n = neighbours(m, (x, y), lambda np, v: v == Bot.SCAFFOLD)
-
-    if len(n) == 4:
-      acc += (x-1) * y
-      m[(x, y)] = 79
-      inter += 1
-
-    elif len(n) == 2 and corner((x,y), n):
-      # m[(x, y)] = 64
-      corners.append((x, y))
-
-
-
-  display(m, r.get_bounds(), inter, len(corners))
+  # m = r.get_map()
+  # display(m, r.get_bounds(), inter, len(corners))
 
   print('Solution 1 \n--------------------------------------------------')
-  print('SUM OF ALIGNMENT PARAMS:', acc)
+  print('SUM OF ALIGNMENT PARAMS:', r.get_alignment_parameters())
 
   
 def two(r):
@@ -373,7 +483,7 @@ def two(r):
 
   r.run(False)
   
-  print('STARDUST COUNT:', r.get_stardust_count())
+  print('\n', 'STARDUST COUNT:', r.get_stardust_count(), sep='')
 
 
 '''
