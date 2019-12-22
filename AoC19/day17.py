@@ -184,10 +184,10 @@ class Bot:
       while queue != path:
         match = False
         for i, fn in enumerate(func_set):
-          new_queque = f'{queue},{fn}' if queue != '' else fn
+          new_queue = f'{queue},{fn}' if queue != '' else fn
           
-          if path.startswith(new_queque):
-            queue = new_queque
+          if path.startswith(new_queue):
+            queue = new_queue
             fn_queue.append('ABC'[i])
             match = True
             break
