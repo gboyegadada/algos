@@ -3,6 +3,7 @@ from collections import OrderedDict
 from math import ceil
 from itertools import combinations
 from lib.intcode import Machine
+from lib.helper import display
 from time import sleep
 import subprocess
 
@@ -60,7 +61,7 @@ class Bot:
     if verbose: cpu.toggle_verbose()
 
     ''' 1. MAIN '''
-    for instr in map(ord, subs[0]):
+    for instr in map(ord, subs['MAIN']):
       cpu.run(instr)
 
     cpu.run(10) # return
@@ -155,7 +156,7 @@ class Bot:
 
     '''
     h = path.replace(',', '') # for checksum
-    found = set()
+    trios = set()
     total_count = 0
     for _abc in combinations(counts.keys(), 3):
       total_count += 1
@@ -167,9 +168,9 @@ class Bot:
       '''
       checksum = (h.count(a) * len(a)) + h.count(b) * len(b) + h.count(c) * len(c)
       if len(h) == checksum:
-        found.add(_abc)
+        trios.add(_abc)
         
-    print(f'ABC CANDIDATES: {len(found)} found out of {total_count} combinations.')
+    print(f'ABC CANDIDATES: {len(trios)} trios found out of {total_count} combinations.')
 
 
     '''
@@ -177,8 +178,8 @@ class Bot:
     find a function trio that takes us all the way to the end of the maze.
     '''
     abc, fn_queue, queue = {}, [], ''
-    while found and queue != path:
-      func_set = found.pop()
+    while trios and queue != path:
+      func_set = trios.pop()
       abc, queue, fn_queue = dict(zip('ABC', func_set)), '', []
 
       while queue != path:
@@ -203,7 +204,7 @@ class Bot:
 
     return subroutines
     '''
-    routines[0] = ','.join(fn_queue)
+    routines['MAIN'] = ','.join(fn_queue)
     for k, f in abc.items():
       routines[k] = f
 
@@ -273,9 +274,10 @@ class Bot:
           if self.__bot_pos[0] == 0: 
             self.__bot_pos = (*pos, o)
           
+        self.__map[pos] = o
+        
         x, y = pos
         pos = (x+1, y)
-        self.__map[pos] = o
 
         self.update_bounds(pos)
 
@@ -283,7 +285,7 @@ class Bot:
     self.update_bounds(pos)
 
     if show: 
-      display(self.__map, self.get_bounds(), 0, 0)
+      display(self.__map, self.get_bounds())
 
     return self.__map, self.__bot_pos
 
@@ -295,7 +297,7 @@ class Bot:
 
     x, y, facing = self.__bot_pos
 
-    pos = tuple([x+1, y])
+    pos = tuple([x, y])
     d, facing = self.turn(facing, pos, None)
 
 
@@ -314,7 +316,7 @@ class Bot:
       
 
       if pos not in m or m.get(pos, None) != self.CORNER:
-        print('DEBUG HALT NOT A CORNER', pos, s)
+        # print('DEBUG HALT NOT A CORNER', pos, s)
         break
 
       d, facing = self.turn(facing, pos, prev)
@@ -385,7 +387,8 @@ class Bot:
 
 
   def get_bounds(self):
-    return self.__bounds
+    _, _, maxx, maxy = self.__bounds
+    return (maxx, maxy)
 
 
   def update_bounds(self, xy):
@@ -401,43 +404,6 @@ class Bot:
   def get_alignment_parameters(self):
     return self.__alignment_parameters
 
-
-
-
-def display(m, bounds, inter, corners):
-  minx, miny, maxx, maxy = bounds
-  maxx, maxy = abs(minx) + maxx, abs(miny) + maxy
-
-  dash = 'INT: {}, CNR: {}, Max (x): {}, Max (y): {}'.format(inter, corners, maxx, maxy)
-
-  subprocess.call("clear")
-
-  print(dash)
-  print('.'*(maxx+1))
-
-  grid = [[' ']*(maxx+1) for _ in range(maxy+1)]
-
-  for (x, y), v in m.items():
-    x += abs(minx)
-    y += abs(miny)
-
-    if x < 0 or x > maxx or y < 0 or y > maxy: break
-
-    try:
-      grid[y][x] = chr(v)
-    except Exception as err:
-      print("Unexpected error:", err)
-      print('DEBUG', x, y, maxx, maxy)
-      exit()
-      break
-
-  for l in grid: print(''.join(l))
-
-  print('\n')
-  print('.'*(maxx+1))
-  print(dash)
-
-  # sleep(0.1)
 
 
 def neighbours(m: dict, pos: tuple, l: callable = lambda p, v: True):
@@ -460,7 +426,7 @@ def corner(p, nodes):
 
 
 robo = Bot(mreset[:])
-m, rpos = robo.map(False)
+m, rpos = robo.map(True)
 
 def one(r):
   '''
@@ -468,7 +434,7 @@ def one(r):
 
   '''
   # m = r.get_map()
-  # display(m, r.get_bounds(), inter, len(corners))
+  # display(m, r.get_bounds()
 
   print('Solution 1 \n--------------------------------------------------')
   print('SUM OF ALIGNMENT PARAMS:', r.get_alignment_parameters())

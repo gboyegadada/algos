@@ -1,4 +1,6 @@
 
+import subprocess
+
 def neighbours(m: dict, pos: tuple, l: callable = lambda p, v: True):
   '''
   N (x, y), S (x, y), W (x, y), E (x, y)
@@ -35,4 +37,34 @@ def shortest(graph: dict, initial: tuple, target: any):
 
   return -1
 
-print(shortest(rmap.copy(), (0,0), Droid.OXYGEN))
+# print(shortest(rmap.copy(), (0,0), Droid.OXYGEN))
+
+
+def display(m, bounds, clear: bool = False):
+  maxx, maxy = bounds
+
+  dash = f'Max (x): {maxx}, Max (y): {maxy}'
+
+  if clear: subprocess.call("clear")
+
+  print(dash)
+  print('.'*maxx)
+
+  grid = [[' ']*(maxx+1) for _ in range(maxy+1)]
+
+  for (x, y), v in m.items():
+
+    if x < 0 or x > maxx or y < 0 or y > maxy: break
+
+    try:
+      grid[y][x] = chr(v) if isinstance(v, int) else v 
+    except Exception as err:
+      print("Unexpected error:", err)
+      print('DEBUG', x, y, maxx, maxy)
+      exit()
+      break
+
+  for l in grid: print(''.join(l))
+
+  print('.'*maxx)
+  print(dash)
