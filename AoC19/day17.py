@@ -151,7 +151,7 @@ class Bot:
 
     '''
     do a little checksum using combinations of candidate functions
-    to narrow down list
+    to narrow down list and sort candidate functions into trios. 
 
     '''
     h = path.replace(',', '') # for checksum
