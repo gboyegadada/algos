@@ -2,21 +2,18 @@ from collections import defaultdict, deque
 
 class Machine:
   def __init__(self, m):
-    self.memory = m + [0]*(8 * 1024*8)
-    self.pointer = 0
-    self.relative_base = 0
-    self.len = len(m)
-    self.__output_queue = deque()
-    self.__halt = False
-    self.__waiting = False
-    self.__initialized = False
-    self.__verbose = False
+    self.__mreset = m
+    
+    self.boot()
+
 
   def input(self, v):
     self.run(v)
 
+
   def output(self):
     return self.__output_queue.popleft() if len(self.__output_queue) > 0 else None
+
 
   def dump_output(self, clear: bool = False):
 
@@ -27,23 +24,43 @@ class Machine:
 
     return o
 
+
   def toggle_verbose(self):
     self.__verbose = not self.__verbose
+
 
   def get_memory(self):
     return self.memory
 
+
+  def boot(self):
+    self.memory = self.__mreset + [0]*(8 * 1024*8)
+    self.pointer = 0
+    self.relative_base = 0
+    self.len = len(self.__mreset)
+    self.__output_queue = deque()
+    self.__halt = False
+    self.__waiting = False
+    self.__initialized = False
+    self.__verbose = False
+
+
   def halted(self):
+
     return self.__halt
+
 
   def waiting(self):
     return self.__waiting
 
+
   def has_output(self):
     return len(self.__output_queue) > 0
 
+
   def initialized(self):
     return self.__initialized
+
 
   def run(self, input = None):
 
@@ -69,8 +86,8 @@ class Machine:
       ''' 
       For convenience: pn for positions, vn for values 
       '''
-      p1, p2, p3 = p
-      v1, v2, v3 = v
+      p1, _, p3 = p
+      v1, v2, _ = v
 
 
       # 99: end

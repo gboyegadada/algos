@@ -1,5 +1,8 @@
 
 import subprocess
+from typing import Callable
+from collections import deque
+import re
 
 def neighbours(m: dict, pos: tuple, l: callable = lambda p, v: True):
   '''
@@ -12,7 +15,11 @@ def neighbours(m: dict, pos: tuple, l: callable = lambda p, v: True):
   return [nn for nn in n if nn in m and l(nn, m.get(nn)) ]
 
 
-def shortest(graph: dict, initial: tuple, target: any):
+def stringify(m: dict, l: list):
+  return ''.join([m.get(x) for x in l])
+
+
+def shortest(graph: dict, initial: tuple, target: any, wall = '#', dot = '.'):
   '''
   parameters
 
@@ -22,15 +29,15 @@ def shortest(graph: dict, initial: tuple, target: any):
   '''
   
   visited = {initial: 1}
-  queue = [initial]
+  queue = deque([initial])
 
   while queue:
       
-      node = queue.pop(0)
-      if graph.get(node, Droid.WALL) == target:
+      node = queue.popleft()
+      if target and (graph.get(node, wall) == target or node == target):
         return visited[node] - 1
 
-      for neighbour in neighbours(graph, node, lambda p, v: v in {Droid.OK, Droid.OXYGEN} and p not in visited):
+      for neighbour in neighbours(graph, node, lambda p, v: v in {dot, target} and p not in visited):
               
         visited[neighbour] = visited[node] + 1
         queue.append(neighbour)
@@ -41,7 +48,7 @@ def shortest(graph: dict, initial: tuple, target: any):
 
 
 def display(m, bounds, clear: bool = False):
-  maxx, maxy = bounds
+  *_, maxx, maxy = bounds
 
   dash = f'Max (x): {maxx}, Max (y): {maxy}'
 
