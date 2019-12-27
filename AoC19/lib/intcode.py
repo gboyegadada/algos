@@ -18,8 +18,14 @@ class Machine:
   def output(self):
     return self.__output_queue.popleft() if len(self.__output_queue) > 0 else None
 
-  def dump_output(self):
-    return list(self.__output_queue)
+  def dump_output(self, clear: bool = False):
+
+    o = list(self.__output_queue)
+
+    if clear:
+      self.__output_queue.clear()
+
+    return o
 
   def toggle_verbose(self):
     self.__verbose = not self.__verbose
