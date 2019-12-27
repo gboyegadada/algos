@@ -38,8 +38,6 @@ class Drone:
     points = 0
     ship_pos = None
 
-    cpu.run()
-
     for y in range(bounds):
       for x in range(bounds):
         cpu.boot()
