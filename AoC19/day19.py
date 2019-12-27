@@ -40,14 +40,9 @@ class Drone:
 
     for y in range(bounds):
       for x in range(bounds):
-        cpu.boot()
-
-        cpu.run(x)
-        cpu.run(y)
-
         p = self.__pos = (x, y)
 
-        o = cpu.output()
+        o = self.ping(x, y)
         self.__map[p] = '#' if o == 1 else '.'
         self.update_bounds(p)
         points += o
