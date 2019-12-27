@@ -299,10 +299,3 @@ if 2 == int(sys.stdin.readline()):
   two(mreset[:])
 else: 
   one(mreset[:])
-
-  '''
-  - molten rock
-  - north
-  - tree
-
-  '''
