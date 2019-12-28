@@ -29,11 +29,13 @@ class SpringDroid:
 
     self.out()
 
+    final = program.pop()
+
 
     for line in list(program):
       self.instruct(line, silent=True)
 
-    self.instruct('WALK')
+    self.instruct(final)
 
 
   def out(self, tostring: bool = True, silent: bool = False):
@@ -96,7 +98,8 @@ def one(d):
     'NOT C J',
     'AND D J',
     'NOT A T',
-    'OR T J'
+    'OR T J',
+    'WALK'
   ]
 
   droid.run(p)
@@ -108,7 +111,40 @@ def two(d):
 
   '''
   print('Solution 2 \n--------------------------------------------------')
+  droid = SpringDroid(d)
 
+  '''
+  notes:
+  -------------------------------
+  1. droid stills jumps 4 steps at a time
+  2. always check to see that tile D (4th tile) is solid (for landing)
+  3. if you want to land on an island (###.##..####), jump 2 tiles before the first
+     hole: so basically jump whenever C (3rd tile ahead) is a hole. 
+  4. watch where you landing next after leaving the island.
+
+  '''
+  p = [
+    #|  @  CD   H      |
+    #|#####.##.##.#.###|
+    'NOT C J',
+    'AND D J',
+    'AND H J',
+
+    #|      @ B D      |
+    #|#####.##.##.#.###|
+    'NOT B T',
+    'AND D T',
+
+    'OR T J',
+
+    #|          @A     |
+    #|#####.##.##.#.###|
+    'NOT A T',
+    'OR T J',
+    'RUN'
+  ]
+
+  droid.run(p)
 
 '''
 Selector
