@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 class Machine:
   def __init__(self, m):
     self.__mreset = m
+    self.__verbose = False
     
     self.boot()
 
@@ -11,8 +12,12 @@ class Machine:
     self.run(v)
 
 
-  def output(self):
-    return self.__output_queue.popleft() if len(self.__output_queue) > 0 else None
+  def output(self, destructive: bool = True):
+
+    if not destructive and self.__output_queue:
+      return self.__output_queue[0]
+
+    return self.__output_queue.popleft() if self.__output_queue else None
 
 
   def dump_output(self, clear: bool = False):
@@ -42,7 +47,6 @@ class Machine:
     self.__halt = False
     self.__waiting = False
     self.__initialized = False
-    self.__verbose = False
 
 
   def halted(self):
