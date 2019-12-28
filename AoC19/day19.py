@@ -32,7 +32,6 @@ class Drone:
 
 
   def points(self, silent = False, bounds = 0):
-    cpu = self.__cpu
     p = self.__pos = (0, 0)
 
     points = 0
@@ -53,14 +52,10 @@ class Drone:
     return points, ship_pos
 
 
-  def position(self, silent = False, bounds = 0):
-    cpu = self.__cpu
-    MAX = 1000
-    x = 0
+  def position(self, bounds = 0):
+    x, y = 0, 0
 
-    cpu.run()
-
-    for y in range(MAX):
+    while True:
       
       lower_left = None
 
@@ -100,6 +95,8 @@ class Drone:
 
       if upper_left and lower_left and lower_right and upper_right and not upper_right_test:
         return (x, y-b)
+
+      y += 1
 
     ''' FAILED '''
     return (0, 0)
@@ -145,7 +142,7 @@ def two(d):
   '''
   print('Solution 2 \n--------------------------------------------------')
   robo = Drone(d)
-  x, y = robo.position(bounds=100, silent=True)
+  x, y = robo.position(bounds=100)
 
   print('========================================')
   print(f'Ship should fit at (x: {x}, y: {y})')
