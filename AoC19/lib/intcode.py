@@ -183,6 +183,6 @@ class Machine:
         self.pointer += 2
 
       else: 
-        print('ERRRRR.....', self.pointer, op, self.memory[self.pointer])
-        self.__halt = True
-        break
+        raise ValueError(f'ERRRRR... p: {self.pointer}, op: {op}, v: {self.memory[self.pointer]}')
+        # self.__halt = True
+        # break
