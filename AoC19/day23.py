@@ -23,10 +23,8 @@ class Network:
   def start(self):
     print(f'Starting network with {len(self.__nodes)} nodes!')
     print('==============================================')
-    nat = None
-    prev_nat = None
 
-    first_packet = None
+    nat, first_packet = None, None
     
 
     while self.__nodes:
@@ -57,7 +55,7 @@ class Network:
         '''
         while machine.has_output():
 
-          a, *d = self.node_send(machine)
+          a, *d = self.read(machine)
 
           if verbose:
             print(f'packet from :{i} ===> :{a} |> x: {d[0]}, y: {d[1]}')
@@ -76,22 +74,22 @@ class Network:
             else:
               break
 
-          self.node_recieve(a, d)
+          self.send(a, d)
 
 
       if network_idle:
         # print('NETWORK IDLE', nat)
 
         if nat:
-          self.node_recieve(0, nat)
+          self.send(0, nat)
         
 
-  def node_recieve(self, a, d: list):
+  def send(self, a, d: list):
     while d:
       self.__nodes[a]['message_queue'].append(d.pop(0))
 
 
-  def node_send(self, n: Machine):
+  def read(self, n: Machine):
     o = []
     for _ in range(3):
       o.append(n.output())
@@ -103,7 +101,8 @@ class Network:
   
     if verbose: node.toggle_verbose()
 
-    node.run(len(self.__nodes))
+    new_addr = len(self.__nodes)
+    node.run(new_addr)
     
     self.__nodes.append({
       'machine': node,
