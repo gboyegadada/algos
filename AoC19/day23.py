@@ -24,10 +24,10 @@ class Network:
     print(f'Starting network with {len(self.__nodes)} nodes!')
     print('==============================================')
 
-    nat, first_packet = None, None
+    nat, prev_nat, first_packet = None, None, None
     
 
-    while self.__nodes:
+    while True:
       if verbose:
         print('Polling...')
 
@@ -61,32 +61,30 @@ class Network:
             print(f'packet from :{i} ===> :{a} |> x: {d[0]}, y: {d[1]}')
           
           if a == 255: 
-            prev_nat = nat.copy() if nat else None
-            nat = list(d)
+            nat = d
 
             if not first_packet:
-              first_packet = nat.copy()
-              
-            if nat and prev_nat and nat[1] == prev_nat[1]:
+              first_packet = nat
               print('First packet to address 255: {{ x: {0}, y: {1} }}'.format(*first_packet))
-              print('Consecutive Y sent to address 0:', nat[1])
-              return
-            else:
-              break
+
+            break
+            
 
           self.send(a, d)
 
 
-      if network_idle:
-        # print('NETWORK IDLE', nat)
-
-        if nat:
+      if network_idle and nat:
           self.send(0, nat)
+
+          if nat and prev_nat and nat[1] == prev_nat[1]:
+            print('Consecutive Y sent to address 0:', nat[1])
+            return
+
+          prev_nat = nat
         
 
   def send(self, a, d: list):
-    while d:
-      self.__nodes[a]['message_queue'].append(d.pop(0))
+    self.__nodes[a]['message_queue'] += d
 
 
   def read(self, n: Machine):
