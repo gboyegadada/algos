@@ -30,7 +30,6 @@ def get_id(s: str):
   return (r * 8) + c
 
 
-prev = None
 manifest = []
 
 for l in open(f):
