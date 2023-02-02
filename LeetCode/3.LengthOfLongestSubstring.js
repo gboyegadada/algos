@@ -11,21 +11,21 @@
  */
 var lengthOfLongestSubstring = function(s) {
   let current = ''
-  let a = []
+  let a = 0
+
+  // i: substring start, j: substring end
   
   for (let i=0; i < s.length; i++) {
       let ch = s[i]
       let j = current.indexOf(ch)
       
       if (j > -1) {
-          a.push(current.length)
+          a = Math.max(a, current.length)
           current = current.substr(j+1) + ch
       }
       
       else current += ch
   }
   
-  a.push(current.length)
-  
-  return Math.max(...a)
+  return Math.max([a, current.length])
 };
