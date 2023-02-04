@@ -1,8 +1,8 @@
-instructions = ''
+data = ''
 with open('day3_input.txt', 'r') as fp:
-  instructions = fp.readline()
+  data = fp.readline()
 
-def santa_alone():
+def santa_alone(instructions: str):
   v = {(0, 0)} # ...visited
   x, y = 0, 0 # ...Santa's last step
 
@@ -19,7 +19,7 @@ def santa_alone():
 
   return v
 
-def with_robo_santa():
+def with_robo_santa(instructions: str):
   v = {(0, 0)} # ...visited
   x, y = 0, 0 # ...Santa's last step
   xb, yb = 0, 0 # ...bots's last step
@@ -53,11 +53,11 @@ def with_robo_santa():
   return v
 
 print('------------ PART 01 -------------')
-print('With Santa by himself,', len(santa_alone()), 'houses receive at least one present.')
+print('With Santa by himself,', len(santa_alone(data)), 'houses receive at least one present.')
 
 
 print('\n------------ PART 02 -------------')
-print('With Robo-Santa by his side,', len(with_robo_santa()), 'houses receive at least one present.')
+print('With Robo-Santa by his side,', len(with_robo_santa(data)), 'houses receive at least one present.')
   
 
 
