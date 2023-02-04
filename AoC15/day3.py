@@ -2,19 +2,24 @@ data = ''
 with open('day3_input.txt', 'r') as fp:
   data = fp.readline()
 
+def step(s: str, x: int, y: int):
+    if '^' == s:
+      y += 1
+    elif 'v' == s:
+      y -= 1
+    elif '>' == s:
+      x += 1
+    elif '<' == s:
+      x -= 1
+    
+    return x, y
+
 def santa_alone(instructions: str):
   v = {(0, 0)} # ...visited
   x, y = 0, 0 # ...Santa's last step
 
-  for step in instructions:
-    if '^' == step:
-      y += 1
-    elif 'v' == step:
-      y -= 1
-    elif '>' == step:
-      x += 1
-    elif '<' == step:
-      x -= 1
+  for s in instructions:
+    x, y = step(s, x, y)
     v.add((x, y))
 
   return v
@@ -23,32 +28,18 @@ def with_robo_santa(instructions: str):
   v = {(0, 0)} # ...visited
   x, y = 0, 0 # ...Santa's last step
   xb, yb = 0, 0 # ...bots's last step
-  santa_is_next = True
+  santas_turn = True
 
-  for step in instructions:
-    if santa_is_next:
-      if '^' == step:
-        y += 1
-      elif 'v' == step:
-        y -= 1
-      elif '>' == step:
-        x += 1
-      elif '<' == step:
-        x -= 1
+  for s in instructions:
+    if santas_turn:
+      x, y = step(s, x, y)
       v.add((x, y))
 
     else:
-      if '^' == step:
-        yb += 1
-      elif 'v' == step:
-        yb -= 1
-      elif '>' == step:
-        xb += 1
-      elif '<' == step:
-        xb -= 1
+      xb, yb = step(s, xb, yb)
       v.add((xb, yb))
 
-    santa_is_next = not santa_is_next
+    santas_turn = not santas_turn
 
   return v
 
