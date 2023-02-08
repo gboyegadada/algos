@@ -1,3 +1,5 @@
+# @see https://adventofcode.com/2015/day/3
+
 data = ''
 with open('day3_input.txt', 'r') as fp:
   data = fp.readline()

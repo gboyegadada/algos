@@ -1,3 +1,5 @@
+# @see https://adventofcode.com/2015/day/4
+
 from hashlib import md5
 
 key = 'iwrupvqb'

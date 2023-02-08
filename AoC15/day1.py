@@ -1,3 +1,4 @@
+# @see https://adventofcode.com/2015/day/1
 
 instructions = ''
 with open('day1_input.txt', 'r') as fp:
