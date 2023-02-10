@@ -50,7 +50,7 @@ def update_brighness(c1: tuple, c2: tuple, g: dict, s: int):
         g[(x, y)] += 1
 
       # :if we are to "toggle", increase brightness by 2
-      elif 2 == s:
+      else:
         g[(x, y)] += 2
 
   return g
@@ -61,7 +61,7 @@ def part_one(d: list):
   # how many are "on" simply by using len()
   grid = {}
   for l in d:
-    on_or_off, c1, c2 = parse_line(l.strip())
+    on_or_off, c1, c2 = parse_line(l)
     grid = update_range(c1, c2, grid, on_or_off)
 
   return len(grid)
@@ -71,7 +71,7 @@ def part_two(d: list):
   # then do a sum() of the values()
   grid = {}
   for l in d:
-    on_or_off, c1, c2 = parse_line(l.strip())
+    on_or_off, c1, c2 = parse_line(l)
     grid = update_brighness(c1, c2, grid, on_or_off)
 
   return sum(grid.values())
