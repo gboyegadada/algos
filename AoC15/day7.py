@@ -30,7 +30,7 @@ def read(input: str, reg: dict):
 
 # :notes
 # Input 1 is the left side of a bitwise operation, e.g. in1 AND in2 -> out
-# Input 2 is the right side of a bitswise operation (^^ see example ^^)
+# Input 2 is the right side of a bitwise operation (^^ see example ^^)
 # Input 1 is not required in operations requiring only one input like: NOT in2 -> out, in2 -> out 
 def exe(i1, i2, op: str, out: str, reg: dict, pending: dict):
   val1, val2 = read(i1, reg), read(i2, reg)
@@ -39,7 +39,7 @@ def exe(i1, i2, op: str, out: str, reg: dict, pending: dict):
   if None == val1 and None != i1:
     pending[i1] = (i1, i2, op, out)
 
-  # :if the output to input 2 is not yet available (this is always expected)
+  # :if the output to input 2 is not yet available (input 2 is always expected)
   if None == val2:
     pending[i2] = (i1, i2, op, out)
 
@@ -70,7 +70,7 @@ def exe(i1, i2, op: str, out: str, reg: dict, pending: dict):
   else:
     print('DEBUG NO-OP:', op, i1, i2, out)
 
-  # There is an input waiting for this output.. 
+  # :if there is an input waiting for this output.. 
   if out in pending:
     pi1, pi2, op, o = pending[out]
     
@@ -101,11 +101,20 @@ def part_one(d: list, reg: dict = {}, pending: dict = {}):
   return reg['a']
 
 
+def part_two(d: list, override: int):
+  for i, (i1, i2, op, o) in enumerate(d):
+    if 'b' == o:
+      d[i] = (None, str(override), op, o)
+      break
+  
+  return part_one(d, {}, {}) # Reset args because they somehow persist across separate calls :\
+
+
 
 print('------------ PART 01 -------------')
-# part_one(data)
-print('Signal is ultimately provided to wire a:', part_one(data))
-
+a = part_one(data)
+print('Signal is ultimately provided to wire a:', a)
 
 print('\n------------ PART 02 -------------')
-# print('Total brightness:', part_two(data))
+a = part_two(data, a)
+print('Signal is ultimately provided to wire a:', a)
