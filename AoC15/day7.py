@@ -13,8 +13,6 @@ def parse_line(l: str):
 
   return in1, in2, operator, output 
 
-data = [parse_line(l) for l in filetolist('day7_input.txt', 'r')]
-
 def read(input: str, reg: dict):
   val = None
 
@@ -26,7 +24,6 @@ def read(input: str, reg: dict):
     val = reg[input]
 
   return val
-
 
 # :notes
 # Input 1 is the left side of a bitwise operation, e.g. in1 AND in2 -> out
@@ -87,7 +84,6 @@ def exe(i1, i2, op: str, out: str, reg: dict, pending: dict):
 
   return reg, pending
 
-
 def part_one(d: list, reg: dict = {}, pending: dict = {}):
 
   for i1, i2, op, o in d:
@@ -100,7 +96,6 @@ def part_one(d: list, reg: dict = {}, pending: dict = {}):
   
   return reg['a']
 
-
 def part_two(d: list, override: int):
   for i, (i1, i2, op, o) in enumerate(d):
     if 'b' == o:
@@ -109,7 +104,7 @@ def part_two(d: list, override: int):
   
   return part_one(d, {}, {}) # Reset args because they somehow persist across separate calls :\
 
-
+data = [parse_line(l) for l in filetolist('day7_input.txt', 'r')]
 
 print('------------ PART 01 -------------')
 a = part_one(data)
