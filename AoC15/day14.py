@@ -33,10 +33,10 @@ def calc_winning_dist(data: list, t: int):
 
   return wd
 
-# List of winners at any giving time t
-def winners_at_t(data: list, t: int):
-  # 1. Distance covered is mapped to constestants in reverse 
-  # 2. The key is the distance covered, the value is a list of constestants
+# List of leading reindeers at a giving time t
+def leading_at_t(data: list, t: int):
+  # 1. Distance covered is mapped to contestants in reverse 
+  # 2. The key is the distance covered, the value is a list of contestants
   # 3. Multiple contestants might cover the same distance at time t
   # 4. Structure should look like so:
   #    {23: ['Comet', 'Dancer'], 17: ['Cupid'], 10: ['Dasher', 'Donner']} 
@@ -57,7 +57,7 @@ def overall_winner(data: list, tt: int):
     for rd in data: leaderboard[rd['name']] = 0
 
     for t in range(1, tt+1):
-      for k in winners_at_t(data, t):
+      for k in leading_at_t(data, t):
         leaderboard[k] += 1
 
     return max(leaderboard.values())
