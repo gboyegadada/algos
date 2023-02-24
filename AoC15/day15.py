@@ -1,7 +1,7 @@
 # @see https://adventofcode.com/2015/day/15
 
 import re
-from itertools import permutations
+from itertools import product
 
 def parse_line(s: str):
   r = re.match(r'([A-Za-z]+): capacity ([\-]?[\d]+), durability ([\-]?[\d]+), flavor ([\-]?[\d]+), texture ([\-]?[\d]+), calories ([-]?[\d]+)', s.strip())
@@ -13,29 +13,38 @@ with open('day15_input.txt', 'r') as f:
   for l in f:
     ingredients.append(parse_line(l))
 
-def calc_max_score(i: list, m: tuple):
-
-    # A capacity of 44*-1 + 56*2 = 68
+def calc_score(i: list, m: tuple):
+    # capacity
     c = max(0, m[0] * i[0]['capacity'] + m[1] * i[1]['capacity'] + m[2] * i[2]['capacity'] + m[3] * i[3]['capacity'])
 
-    # A durability of 44*-2 + 56*3 = 80
+    # durability
     d = max(0, m[0] * i[0]['durability'] + m[1] * i[1]['durability'] + m[2] * i[2]['durability'] + m[3] * i[3]['durability'])
 
-    # A flavor of 44*6 + 56*-2 = 152
+    # flavor
     f = max(0, m[0] * i[0]['flavor'] + m[1] * i[1]['flavor'] + m[2] * i[2]['flavor'] + m[3] * i[3]['flavor']) 
 
-    # A texture of 44*3 + 56*-1 = 76
+    # texture
     t = max(0, m[0] * i[0]['texture'] + m[1] * i[1]['texture'] + m[2] * i[2]['texture'] + m[3] * i[3]['texture']) 
 
-    # cal = max(0, m[0] * i[0]['calories'] + m[1] * i[1]['calories'] + m[2] * i[2]['calories'] + m[3] * i[3]['calories']) 
+    # calories
+    cal = m[0] * i[0]['calories'] + m[1] * i[1]['calories'] + m[2] * i[2]['calories'] + m[3] * i[3]['calories']
 
-    return c * d * f * t
+    return c * d * f * t, cal
 
-score = 0
-for p in permutations(range(0, 101), 4):
+max_score = 0
+max_score_caloric = 0
+
+for p in product(range(0, 101), repeat=4):
   if sum(p) != 100: continue
 
-  score = max(score, calc_max_score(ingredients, p))
-  
+  score, cal = calc_score(ingredients, p)
+  max_score = max(score, max_score)
 
-print('Highest score:', score)
+  if 500 == cal and score > max_score_caloric:
+    max_score_caloric = score
+
+print('------------ PART 01 -------------')
+print('Highest score:', max_score)
+
+print('\n------------ PART 02 -------------')
+print('Highest score with a calorie total of 500:', max_score_caloric)
