@@ -10,7 +10,8 @@ def calc_num_of_ways(c: list):
   l = len(c)
 
   # Generate all combinations of containers
-  # ...and only select those volumes that add up to exactly 150l
+  # Use [combinations of] the index of the list of containers to ensure identical sizes are included
+  # ...and only select those volumes that add up to exactly 150 l
   for dl in range(1, l+1):
     ways = [p for p in combinations(range(l), dl) if 150 == sum([c[i] for i in p])]
     lw = len(ways)
