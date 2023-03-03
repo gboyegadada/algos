@@ -9,13 +9,10 @@ with open('day18_input.txt', 'r') as f:
     y += 1
 
 def num_of_neighbours_on(x: int, y: int, g: dict):
-  n = [(x, y-1), (x+1, y-1), (x+1, y), (x+1, y+1), (x, y+1), (x-1, y+1), (x-1, y), (x-1, y-1)]
-  active = 0
-
-  for xy in n:
-    active += 0 if xy not in g or 0 == g[xy] else 1
-  
-  return active
+    return  g.get((x, y-1), 0) + g.get((x+1, y-1), 0) + \
+            g.get((x+1, y), 0) + g.get((x+1, y+1), 0) + \
+            g.get((x, y+1), 0) + g.get((x-1, y+1), 0) + \
+            g.get((x-1, y), 0) + g.get((x-1, y-1), 0)
 
 def step(g: dict):
   gclone = dict(g)
